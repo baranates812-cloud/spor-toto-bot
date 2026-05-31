@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Yapay Zeka Spor Analiz Chatbotu</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #121212; color: #ffffff; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .chat-header { background-color: #1e1e1e; padding: 20px; text-align: center; border-bottom: 2px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .chat-header h1 { margin: 0; color: #00d2ff; font-size: 22px; }
+        .chat-header p { margin: 5px 0 0 0; color: #888; font-size: 13px; }
+        .chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #161616; }
+        .mesaj { max-width: 75%; padding: 14px 18px; border-radius: 15px; line-height: 1.6; font-size: 15px; white-space: pre-wrap; }
+        .kullanici { background-color: #0084ff; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .yapay-zeka { background-color: #262626; color: #e0e0e0; align-self: flex-start; border-bottom-left-radius: 2px; border-left: 4px solid #00d2ff; }
+        .loading-mesaj { color: #00d2ff; font-style: italic; align-self: flex-start; background: transparent; padding: 5px; }
+        .input-alan { background-color: #1e1e1e; padding: 20px; display: flex; gap: 15px; border-top: 2px solid #333; }
+        input { flex: 1; padding: 15px; background-color: #2c2c2c; border: 1px solid #444; color: white; border-radius: 8px; font-size: 15px; outline: none; }
+        input:focus { border-color: #00d2ff; }
+        button { padding: 0 25px; background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        button:hover { opacity: 0.9; transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <div class="chat-header">
+        <h1>🤖 Canlı Spor Toto Yapay Zeka Danışmanı</h1>
+        <p>Maç adını, sakatları, cezalıları veya kendi fikrini normalce yaz, analizi anında al!</p>
+    </div>
+
+    <div class="chat-container" id="chat-box">
+        <div class="mesaj yapay-zeka">Selam kral! Ben senin kişisel Spor Toto ve İddaa analiz danışmanım. Analiz etmemi istediğin maçları, takımlardaki eksikleri veya aklındaki soruları bana buraya normal bir şekilde yazabilirsin. Sahadaki soğuk gerçeklerle analize hazırım! 🚀</div>
+    </div>
+
+    <div class="input-alan">
+        <input type="text" id="user-input" placeholder="Örn: Galatasaray - fener maçı ne olur icardi sakatmış sürpriz çıkar mı?" onkeypress="checkEnter(event)">
+        <button onclick="mesajGonder()">Gönder 🚀</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                mesajGonder();
+            }
+        }
+
+        async function mesajGonder() {
+            const inputField = document.getElementById('user-input');
+            const mesajMetni = inputField.value.trim();
+            if (!mesajMetni) return;
+
+            // Kullanıcı mesajını ekrana ekle
+            appendMessage(mesajMetni, 'kullanici');
+            inputField.value = '';
+
+            // Loading animasyonu ekle
+            const loadingId = 'loading-' + Date.now();
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'mesaj loading-mesaj';
+            loadingDiv.id = loadingId;
+            loadingDiv.innerText = 'Yapay zeka taktik tahtasını inceliyor... ⏳';
+            chatBox.appendChild(loadingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/chat-et', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mesaj: mesajMetni })
+                });
+                
+                const data = await response.json();
+                document.getElementById(loadingId).remove(); // Loading'i kaldır
+                
+                // Yapay zeka cevabını ekle
+                appendMessage(data.analiz, 'yapay-zeka');
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                appendMessage('Motor arka planda açık değil veya bir hata oluştu kral.', 'yapay-zeka');
+            }
+        }
+
+        function appendMessage(text, className) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `mesaj ${className}`;
+            msgDiv.innerText = text;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // Ekranı otomatik aşağı kaydır
+        }
+    </script>
+</body>
+</html>
