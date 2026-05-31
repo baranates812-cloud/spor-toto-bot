@@ -19,7 +19,7 @@ app.add_middleware(
 # DİKKAT: Aşağıdaki tırnakların içine çalışan kendi VIP anahtarını (AQ.Ab8...) yapıştır!
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
-sohbet_yapay_zekasi = genai.GenerativeModel('gemini-2.0-flash', tools=[{"google_search_retrieval": {}}])
+sohbet_yapay_zekasi = genai.GenerativeModel('gemini-2.0-flash')
 
 # 3. CHAT GİRİŞ MODELİ
 class ChatIstegi(BaseModel):
